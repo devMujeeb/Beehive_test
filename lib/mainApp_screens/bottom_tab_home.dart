@@ -49,6 +49,7 @@ class _BottomTabHomeState extends State<BottomTabHome> {
                 Icons.work_history_outlined,
                 1,
               ),
+
               bottomTabBarItem(
                 () {
                   setState(() {
