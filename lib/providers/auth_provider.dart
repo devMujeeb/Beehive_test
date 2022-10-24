@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:beehive/mainApp_screens/bottom_tab_home.dart';
+import 'package:beehive/providers/home_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:beehive/widgets/colors.dart';
@@ -6,7 +8,9 @@ import 'package:beehive/widgets/routes.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import '../widgets/const_function.dart';
+
 
 class AuthProvider with ChangeNotifier {
   bool checkObscure = true;
@@ -124,6 +128,21 @@ class AuthProvider with ChangeNotifier {
       },
     );
   }
+  Route homePageRoute() {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => const BottomTabHome(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(1.5, 0.5);
+        const end = Offset.zero;
+        const curve = Curves.easeInOutCubicEmphasized;
+        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        return SlideTransition(
+          position: animation.drive(tween),
+          child: child,
+        );
+      },
+    );
+  }
 
   bool loading = false;
   void loginValidation(
@@ -138,7 +157,12 @@ class AuthProvider with ChangeNotifier {
             .then((v) {
           String user = v.user!.uid;
           if (user.isNotEmpty) {
-            // userUploadToDB(context);
+            Provider.of<HomeProvider>(context, listen: false)
+                .getMainCategories()
+                .then(
+                  (value) =>
+                      Navigator.of(context).pushReplacement(homePageRoute()),
+                );
           } else {
             showToast("Something Wrong", context);
           }
@@ -175,29 +199,30 @@ class AuthProvider with ChangeNotifier {
     TextEditingController password,
     TextEditingController storeLocation,
     TextEditingController maroofCode,
-      context,
+    context,
   ) {
     if (getImage != null) {
       if (storeName.text.isNotEmpty) {
         if (categoryDropDownValue != "") {
           if (email.text.isNotEmpty && isEmail(email.text)) {
-              if (number.text.isNotEmpty) {
-                if (password.text.isNotEmpty) {
-                  if (storeLocation.text.isNotEmpty) {
-                    if (maroofCode.text.isNotEmpty) {
-                        createUser(storeName,email,number,password,storeLocation,maroofCode,context);
-                      } else {
-                        showToast("please enter your maroof code", context);
-                      }
+            if (number.text.isNotEmpty) {
+              if (password.text.isNotEmpty) {
+                if (storeLocation.text.isNotEmpty) {
+                  if (maroofCode.text.isNotEmpty) {
+                    createUser(storeName, email, number, password,
+                        storeLocation, maroofCode, context);
                   } else {
-                    showToast("Please enter your store location", context);
+                    showToast("please enter your maroof code", context);
                   }
                 } else {
-                  showToast("Please enter your password", context);
+                  showToast("Please enter your store location", context);
                 }
               } else {
-                showToast("Please enter your mobile number", context);
+                showToast("Please enter your password", context);
               }
+            } else {
+              showToast("Please enter your mobile number", context);
+            }
           } else {
             showToast("Please enter correct email", context);
           }
@@ -227,7 +252,8 @@ class AuthProvider with ChangeNotifier {
             password: password.text.toString())
         .then((v) {
       uid = v.user!.uid;
-      uploadPic(getImage!, context,storeName,email,number,password,storeLocation,maroofCode);
+      uploadPic(getImage!, context, storeName, email, number, password,
+          storeLocation, maroofCode);
     }).onError((error, stackTrace) {
       loading = false;
       if (error.toString().contains("email-already-in-use")) {
@@ -244,14 +270,16 @@ class AuthProvider with ChangeNotifier {
   String imgUrl = "";
   final FirebaseStorage _storage = FirebaseStorage.instance;
 
-  void uploadPic(File imageFile, context,
-  TextEditingController storeName,
-      TextEditingController email,
-  TextEditingController number,
-      TextEditingController password,
-  TextEditingController storeLocation,
-      TextEditingController maroofCode,
-      ) async {
+  void uploadPic(
+    File imageFile,
+    context,
+    TextEditingController storeName,
+    TextEditingController email,
+    TextEditingController number,
+    TextEditingController password,
+    TextEditingController storeLocation,
+    TextEditingController maroofCode,
+  ) async {
     String imgPath = imageFile.path.split("/").last;
     Reference reference = _storage.ref().child("images/$uid/$imgPath");
     Task upload = reference.putFile(imageFile);
@@ -259,22 +287,23 @@ class AuthProvider with ChangeNotifier {
       String url = await v.ref.getDownloadURL();
       print("URL is $url");
       imgUrl = url;
-      userUploadToDB(storeName,email,number,storeLocation,maroofCode,context);
+      userUploadToDB(
+          storeName, email, number, storeLocation, maroofCode, context);
     });
     notifyListeners();
   }
 
   void userUploadToDB(
-      TextEditingController storeName,
-      TextEditingController email,
-      TextEditingController number,
-      TextEditingController storeLocation,
-      TextEditingController maroofCode,
-      context,
-      ) {
+    TextEditingController storeName,
+    TextEditingController email,
+    TextEditingController number,
+    TextEditingController storeLocation,
+    TextEditingController maroofCode,
+    context,
+  ) {
     String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
     Map<String, dynamic> data = {
-      "userCreateTime":timestamp,
+      "userCreateTime": timestamp,
       "uid": uid,
       "img_url": imgUrl,
       "storeName": storeName.text,
@@ -291,7 +320,12 @@ class AuthProvider with ChangeNotifier {
           data,
         )
         .then((va) async {
-          // AppRoutes.makeFirst(context, HomePage());
+      Provider.of<HomeProvider>(context, listen: false)
+          .getMainCategories()
+          .then(
+            (value) =>  Navigator.of(context).pushReplacement(homePageRoute()),
+          );
+
       showToast("Thanks for Sign Up", context);
     });
     notifyListeners();

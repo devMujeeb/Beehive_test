@@ -1,4 +1,7 @@
 import 'package:beehive/mainApp_screens/home_screen.dart';
+import 'package:beehive/mainApp_screens/screen2.dart';
+import 'package:beehive/mainApp_screens/screen3.dart';
+import 'package:beehive/mainApp_screens/screen4.dart';
 import 'package:flutter/material.dart';
 
 class BottomTabHome extends StatefulWidget {
@@ -13,6 +16,7 @@ class _BottomTabHomeState extends State<BottomTabHome> {
 
   final PageStorageBucket bucket = PageStorageBucket();
   Widget currentScreen = const HomeScreen();
+
 
   @override
   Widget build(BuildContext context) {
@@ -37,35 +41,38 @@ class _BottomTabHomeState extends State<BottomTabHome> {
                     pageIndex = 0;
                   });
                 },
-                Icons.home_rounded,
+               pageIndex == 0?Icons.home:Icons.home_outlined,
                 0,
               ),
               bottomTabBarItem(
                 () {
                   setState(() {
+                    currentScreen = const Screen2();
                     pageIndex = 1;
                   });
                 },
-                Icons.work_history_outlined,
+                pageIndex == 1?Icons.work_rounded:Icons.work_outline,
                 1,
               ),
 
               bottomTabBarItem(
                 () {
                   setState(() {
+                    currentScreen = const Screen3();
                     pageIndex = 2;
                   });
                 },
-                Icons.mark_as_unread_outlined,
+                pageIndex == 2?Icons.notifications:Icons.notifications_none,
                 2,
               ),
               bottomTabBarItem(
                 () {
                   setState(() {
+                    currentScreen = const Screen4();
                     pageIndex = 3;
                   });
                 },
-                Icons.person_outline,
+                pageIndex == 3?Icons.favorite:Icons.favorite_border,
                 3,
               ),
             ],

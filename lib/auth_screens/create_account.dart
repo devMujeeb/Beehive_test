@@ -1,3 +1,4 @@
+import 'package:beehive/auth_screens/login.dart';
 import 'package:beehive/providers/auth_provider.dart';
 import 'package:beehive/widgets/colors.dart';
 import 'package:beehive/widgets/routes.dart';
@@ -185,7 +186,7 @@ class _CreateAccountClassState extends State<CreateAccountClass> {
               children: [
                 TextButton(
                   onPressed: () {
-                    AppRoutes.push(context, const CreateAccountClass());
+                    AppRoutes.pop(context);
                   },
                   child: Text(
                     "Login",
@@ -402,13 +403,13 @@ class _CreateAccountClassState extends State<CreateAccountClass> {
                     decoration: const InputDecoration(
                       border: InputBorder.none,
                       hintText: "Enter",
-                      hintStyle: const TextStyle(
+                      hintStyle: TextStyle(
                         fontFamily: "Cario",
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
                         color: Colors.black45,
                       ),
-                      contentPadding: const EdgeInsets.fromLTRB(20, 13, 15, 10),
+                      contentPadding: EdgeInsets.fromLTRB(20, 13, 15, 10),
                     ),
                   ),
                 ),
@@ -419,4 +420,19 @@ class _CreateAccountClassState extends State<CreateAccountClass> {
       ),
     );
   }
+}
+Route loginRoute() {
+  return PageRouteBuilder(
+    pageBuilder: (context, animation, secondaryAnimation) => const LoginClass(),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      const begin = Offset(0.0, 1.0);
+      const end = Offset.zero;
+      const curve = Curves.ease;
+      var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+      return SlideTransition(
+        position: animation.drive(tween),
+        child: child,
+      );
+    },
+  );
 }

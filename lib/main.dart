@@ -1,5 +1,6 @@
 import 'package:beehive/auth_screens/login.dart';
 import 'package:beehive/providers/auth_provider.dart';
+import 'package:beehive/providers/home_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -19,6 +20,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (ctx) => AuthProvider()),
+        ChangeNotifierProvider(create: (ctx) => HomeProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

@@ -2,7 +2,6 @@ import 'package:beehive/auth_screens/create_account.dart';
 import 'package:beehive/providers/auth_provider.dart';
 import 'package:beehive/widgets/custom_button.dart';
 import 'package:beehive/widgets/my_text_field.dart';
-import 'package:beehive/widgets/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -16,6 +15,8 @@ class LoginClass extends StatefulWidget {
 }
 
 class _LoginClassState extends State<LoginClass> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,8 +44,9 @@ class _LoginClassState extends State<LoginClass> {
             ),
             Column(
               children: [
-                const MyTextField(
+                MyTextField(
                   headText: "Email",
+                  controller: emailController,
                   inputType: TextInputType.emailAddress,
                 ),
                 const SizedBox(
@@ -56,7 +58,12 @@ class _LoginClassState extends State<LoginClass> {
             SizedBox(
               height: MediaQuery.of(context).size.width / 3,
             ),
-            CustomButton(onPress: () {}, buttonName: "Login"),
+            Consumer<AuthProvider>(
+              builder: (_,login,child)=>
+               CustomButton(onPress: () {
+              login.loginValidation(emailController, passwordController, context);
+              }, buttonName: "Login"),
+            ),
             SizedBox(
               height: MediaQuery.of(context).size.width / 3,
             ),
@@ -65,7 +72,7 @@ class _LoginClassState extends State<LoginClass> {
               children: [
                 TextButton(
                   onPressed: () {
-                    AppRoutes.push(context,const CreateAccountClass());
+                    Navigator.of(context).push(createAccountRoute());
                   },
                   child: Text(
                     "Create Account",
@@ -122,6 +129,7 @@ class _LoginClassState extends State<LoginClass> {
                 ),
               ),
               child: TextFormField(
+                controller: passwordController,
                 keyboardType: TextInputType.visiblePassword,
                 style: TextStyle(
                   fontFamily: "Cario",
@@ -155,3 +163,19 @@ class _LoginClassState extends State<LoginClass> {
     );
   }
 }
+Route createAccountRoute() {
+  return PageRouteBuilder(
+    pageBuilder: (context, animation, secondaryAnimation) => const CreateAccountClass(),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      const begin = Offset(1.5, 0.5);
+      const end = Offset.zero;
+      const curve = Curves.easeInOutCubicEmphasized;
+      var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+      return SlideTransition(
+        position: animation.drive(tween),
+        child: child,
+      );
+    },
+  );
+}
+
